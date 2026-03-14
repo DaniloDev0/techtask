@@ -1,5 +1,6 @@
 package br.com.techtask.exception;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -34,6 +35,15 @@ public class TratadorDeErros {
                 .toList();
 
         return ResponseEntity.badRequest().body(errosFormatados);
+    }
+
+    // O radar agora escuta a nossa nova exceção
+    @ExceptionHandler(RecursoNaoEncontradoException.class)
+    public ResponseEntity<DadosErro> tratarErro404(RecursoNaoEncontradoException ex) {
+        DadosErro erroFormatado = new DadosErro(ex.getMessage());
+
+        // Em vez de badRequest(), usamos status(HttpStatus.NOT_FOUND) para devolver o código 404
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(erroFormatado);
     }
 
     // 2. Criamos um novo 'Molde' (record) específico para erros de digitação.

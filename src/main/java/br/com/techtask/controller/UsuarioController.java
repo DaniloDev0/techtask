@@ -1,5 +1,7 @@
 package br.com.techtask.controller;
 
+import br.com.techtask.dto.UsuarioRequestDTO;
+import br.com.techtask.dto.UsuarioResponseDTO;
 import br.com.techtask.modelo.Usuario;
 import br.com.techtask.service.UsuarioService;
 import jakarta.validation.Valid;
@@ -16,13 +18,29 @@ public class UsuarioController {
     private UsuarioService usuarioService;
 
     @PostMapping
-    public Usuario cadastrarUsuario(@Valid @RequestBody Usuario usuario) {
-        return usuarioService.cadastrarUsuario(usuario);
+    public UsuarioResponseDTO cadastrarUsuario(@Valid @RequestBody UsuarioRequestDTO dto) {
+
+        // 1. Pegamos os dados do DTO seguro e colocamos na Entidade
+        Usuario novoUsuario = new Usuario();
+        novoUsuario.setNome(dto.nome());
+        novoUsuario.setEmail(dto.email());
+
+        // 2. Mandamos o Gerente salvar a Entidade no banco
+        Usuario usuarioSalvo = usuarioService.cadastrarUsuario(novoUsuario);
+
+        // 3. Retornamos o dublê de saída (que nós criamos na missão anterior!)
+        return new UsuarioResponseDTO(usuarioSalvo);
     }
 
     @GetMapping
-    public List<Usuario> listarTodos() {
-        return usuarioService.listarTodosUsuarios();
+    public List<UsuarioResponseDTO> listarTodos() {
+        // 1. Pega os usuários "crus" do banco
+        List<Usuario> usuariosDoBanco = usuarioService.listarTodosUsuarios();
+
+        // 2. Transforma cada um no nosso dublê seguro usando a esteira mágica (.stream)
+        return usuariosDoBanco.stream()
+                .map(UsuarioResponseDTO::new)
+                .toList();
     }
 
     @PutMapping("/{id}")
