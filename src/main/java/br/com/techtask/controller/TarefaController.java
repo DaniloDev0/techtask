@@ -2,6 +2,7 @@ package br.com.techtask.controller;
 
 import br.com.techtask.modelo.Tarefa;
 import br.com.techtask.service.TarefaService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,7 +16,7 @@ public class TarefaController {
     private TarefaService service;
 
     @PostMapping
-    public Tarefa cadastrarTarefa(@RequestBody Tarefa novaTarefa) {
+    public Tarefa cadastrarTarefa(@Valid @RequestBody Tarefa novaTarefa) {
         return service.cadastrarTarefa(novaTarefa);
     }
 
@@ -30,7 +31,7 @@ public class TarefaController {
     }
 
     @PutMapping("/{id}")
-    public Tarefa atualizarTarefa(@PathVariable Long id, @RequestBody Tarefa tarefa) {
+    public Tarefa atualizarTarefa(@PathVariable Long id,@Valid @RequestBody Tarefa tarefa) {
         tarefa.setId(id);
        return service.atualizarTarefa(id, tarefa);
     }

@@ -1,6 +1,9 @@
 package br.com.techtask.modelo;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -11,7 +14,13 @@ public class Tarefa {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne
+    @JoinColumn(name = "usuario_id")
+    private Usuario usuario;
+
+    @NotBlank(message = "O título é obrigatório e não pode estar em branco!")
     private String titulo;
+    @Size(min = 5, message = "A descrição deve ter pelo menos 5 caracteres!")
     private String descricao;
 
     // 🪄 A MÁGICA: @ElementCollection avisa o Hibernate para criar uma tabela extra só para as Tags!
@@ -43,4 +52,12 @@ public class Tarefa {
 
     public Set<String> getTags() { return tags; }
     public void setTags(Set<String> tags) { this.tags = tags; }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
 }
