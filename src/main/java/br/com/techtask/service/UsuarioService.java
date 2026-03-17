@@ -4,6 +4,7 @@ import br.com.techtask.exception.RecursoNaoEncontradoException;
 import br.com.techtask.modelo.Usuario;
 import br.com.techtask.repositorio.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,11 +15,18 @@ public class UsuarioService {
     @Autowired
     private UsuarioRepository repository;
 
-    public Usuario cadastrarUsuario(Usuario usuario) {
+    @Autowired
+    private PasswordEncoder passwordEncoder; // Injetamos o nosso criptógrafo aqui!
 
+    public Usuario cadastrarUsuario(Usuario usuario) {
         if (repository.existsByEmail(usuario.getEmail())) {
-            throw new RuntimeException("Erro: Ja existe um usuario com esse email");
+            throw new RuntimeException("Erro: Já existe um usuário com esse email");
         }
+
+        // Pega a senha limpa, embaralha, e devolve para o usuário antes de salvar!
+        String senhaCriptografada = passwordEncoder.encode(usuario.getSenha());
+        usuario.setSenha(senhaCriptografada);
+
         return repository.save(usuario);
     }
 

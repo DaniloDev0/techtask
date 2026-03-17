@@ -24,6 +24,7 @@ public class UsuarioController {
         Usuario novoUsuario = new Usuario();
         novoUsuario.setNome(dto.nome());
         novoUsuario.setEmail(dto.email());
+        novoUsuario.setSenha(dto.senha());
 
         // 2. Mandamos o Gerente salvar a Entidade no banco
         Usuario usuarioSalvo = usuarioService.cadastrarUsuario(novoUsuario);
