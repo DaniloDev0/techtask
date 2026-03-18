@@ -1,9 +1,12 @@
 package br.com.techtask.controller;
 
+import br.com.techtask.dto.TarefaResponseDTO;
 import br.com.techtask.modelo.Tarefa;
+import br.com.techtask.modelo.Usuario;
 import br.com.techtask.service.TarefaService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,23 +19,41 @@ public class TarefaController {
     private TarefaService service;
 
     @PostMapping
-    public Tarefa cadastrarTarefa(@Valid @RequestBody Tarefa novaTarefa) {
-        return service.cadastrarTarefa(novaTarefa);
+    public TarefaResponseDTO cadastrarTarefa(
+            @Valid @RequestBody Tarefa novaTarefa,
+            @AuthenticationPrincipal Usuario usuarioLogado) {
+
+        // 1. O Service guarda a tarefa e devolve a entidade preenchida (com ID, etc)
+        Tarefa tarefaSalva = service.cadastrarTarefa(novaTarefa, usuarioLogado);
+
+        // 2. Nós convertemos a Entidade para DTO antes de cuspir para a rua!
+        return new TarefaResponseDTO(tarefaSalva);
     }
 
     @GetMapping
-    public List<Tarefa> buscarTarefas() {
-        return service.buscarTarefa();
+    public List<TarefaResponseDTO> buscarTarefas(@AuthenticationPrincipal Usuario usuarioLogado) {
+
+        // 1. Busca as tarefas APENAS desse usuário
+        List<Tarefa> minhasTarefas = service.buscarTarefa(usuarioLogado);
+
+        // 2. Converte a lista de Entidades para uma lista de DTOs limpos e seguros
+        return minhasTarefas.stream()
+                .map(TarefaResponseDTO::new)
+                .toList();
     }
 
     @DeleteMapping("/{id}")
-    public void deletarTarefa(@PathVariable Long id) {
-        service.deletarTarefa(id);
+    public void deletarTarefa(@PathVariable Long id, @AuthenticationPrincipal Usuario usuarioLogado) {
+        service.deletarTarefa(id, usuarioLogado);
     }
 
     @PutMapping("/{id}")
-    public Tarefa atualizarTarefa(@PathVariable Long id,@Valid @RequestBody Tarefa tarefa) {
-        tarefa.setId(id);
-       return service.atualizarTarefa(id, tarefa);
+    // Mudamos o retorno para TarefaResponseDTO e adicionamos o @AuthenticationPrincipal
+    public TarefaResponseDTO atualizarTarefa(
+            @PathVariable Long id,
+            @Valid @RequestBody Tarefa tarefa,
+            @AuthenticationPrincipal Usuario usuarioLogado) {
+
+        return service.atualizarTarefa(id, tarefa, usuarioLogado);
     }
 }
