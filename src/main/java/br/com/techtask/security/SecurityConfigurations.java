@@ -33,7 +33,11 @@ public class SecurityConfigurations {
                 .authorizeHttpRequests(req -> {
                     req.requestMatchers(HttpMethod.POST, "/usuarios").permitAll();
                     req.requestMatchers(HttpMethod.POST, "/auth").permitAll();
+
+                    // 🪄 NOVAS LINHAS AQUI: Liberando as rotas internas do Swagger!
+                    req.requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll();
                     req.requestMatchers("/error").permitAll();
+
                     req.anyRequest().authenticated();
                 })
                 // NOVA LINHA AQUI: Diz pro Spring colocar o nosso filtro ANTES do filtro padrão dele!
